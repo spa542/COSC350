@@ -1,5 +1,5 @@
 #!/bin/bash
-# This will create a # based diamond
+# This will create a # based triangle
 # Skip Function
 skip() {
     for skip in $(seq $1);

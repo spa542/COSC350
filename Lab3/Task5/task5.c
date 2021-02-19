@@ -62,7 +62,6 @@ int main(void) {
     // Start the cursor at the end of the file
     lseek(infd, revcounter, SEEK_END);
     while((nbyte = read(infd, buff, BUFFER_SIZE)) > 0) {
-        write(1, buff, BUFFER_SIZE);
         if (write(outfd, buff, BUFFER_SIZE) != nbyte) {
             puts("*** error writing to file ***");
             close(infd);

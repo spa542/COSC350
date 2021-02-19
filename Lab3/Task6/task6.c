@@ -51,13 +51,15 @@ int main(void) {
     }
 
     // Reverse counter
-    int revcounter = -1;
+    int revcounter;
     // Byte check
     int nbyte;
     // Now write the contents of input file in reverse to output file
     // Use pread() to read the input file backwards and write into the 
     // output file forwards
-
+    // Get the file size
+    int filesize = lseek(infd, 0, SEEK_END);
+    revcounter = filesize - 1;
     while((nbyte = pread(infd, buff, BUFFER_SIZE, revcounter)) > 0) {
         write(1, buff, BUFFER_SIZE);
         if (write(outfd, buff, BUFFER_SIZE) != nbyte) {
@@ -65,6 +67,9 @@ int main(void) {
             close(infd);
             close(outfd);
             return 3; // Return because the write did not work 
+        }
+        if (revcounter == 0) {
+            break;
         }
         revcounter--;
     }

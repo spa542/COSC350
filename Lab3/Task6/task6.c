@@ -13,6 +13,24 @@
 #define BUFFER_SIZE 1
 
 /*
+ * writeFileReverse() Function:
+ * This function will read from a file using pread() 
+ * and then write the contents of the file byte by byte
+ * in reverse order
+ */
+int writeFileReverse(int infd, int outfd, int offsetStart) {
+    // Create the local buffer
+    char localBuff[BUFFER_SIZE];
+    // Walk up the recursive call stack until we cant read anymore 
+    // chars and then write the char as we walk back down the stack
+    if (pread(infd, localBuff, BUFFER_SIZE, offsetStart) > 0) {
+        writeFileReverse(infd, outfd, offsetStart + 1);
+        write(outfd, localBuff, BUFFER_SIZE);
+    }
+    return 0; // Return 0 because the function worked properly
+}
+
+/*
  * Open a file as input and write into a file in reverse order 
  * using pread() system call
  */
@@ -54,31 +72,9 @@ int main(void) {
     int revcounter;
     // Byte check
     int nbyte;
-    // Now write the contents of input file in reverse to output file
-    // Use pread() to read the input file backwards and write into the 
-    // output file forwards
-    // Get the file size
-    int filesize = lseek(infd, 0, SEEK_END);
-    revcounter = filesize - 1;
-    while((nbyte = pread(infd, buff, BUFFER_SIZE, revcounter)) > 0) {
-        write(1, buff, BUFFER_SIZE);
-        if (write(outfd, buff, BUFFER_SIZE) != nbyte) {
-            puts("*** error writing to file ***");
-            close(infd);
-            close(outfd);
-            return 3; // Return because the write did not work 
-        }
-        if (revcounter == 0) {
-            break;
-        }
-        revcounter--;
-    }
-    if (nbyte < 0) {
-        puts("*** error reading from file ***");
-        close(infd);
-        close(outfd); 
-        return 4; // Return because the read did not work
-    }
+
+    // Call the function
+    writeFileReverse(infd, outfd, 0);
 
     // Close the files
     close(infd);

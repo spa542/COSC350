@@ -10,33 +10,23 @@
 #include<fcntl.h> // open()
 #include<unistd.h> // read(), write()
 #include<stdbool.h> // bool alias
+#include<sys/stat.h> // umask()
+#include<pwd.h> // getenv()
+
+#define BUFFER_SIZE 1
 
 /*
  * myAtoI Function:
- * Converts an ASCII number to a decimal value while
- * checking to see if the converted ASCII number is a 
- * valid decimal number
+ * Converts a single character to it's integer representation
  */
-int myAtoI(char* num) {
-    // Subtract the ASCII 0 from each digit and then multiply by each
-    // decimal place to get out number back
-    int i, result = 0;
-    bool isNum = true;
-    for (i = 0; num[i] != '\0'; i++) {
-        // Check each character to make sure it is a valid number
-        if (num[i] < '0' || num[i] > '9') {
-            // If invalid, isNum will be false
-            isNum = false;
-            break;
-        }
-        result = result * 10 + num[i] - '0';
-    }
-    // If the loop states the the number is not a number,
-    // return -1 -> This will be handled in the calling process
-    if (!isNum) {
+int myAtoI(char item) {
+    // Check to see if the char is a valid number
+    if (item < '0' || item > '9') {
         return -1;
     }
-    return result;
+    // Subtract the ASCII 0 from the number and then return 
+    // it's integer value converted
+    return (int)(item - '0');   
 }
 
 /*
@@ -48,6 +38,63 @@ int myAtoI(char* num) {
  * Use custom atoi function from previous task.
  */
 int main(int argc, char** argv) {
+
+    // Create buffer
+    char buff[BUFFER_SIZE];
+    // Create full path buffer
+    char fullpath[120]; // Large in case of abnormally long path
+    // For home variable
+    char* homedir;
+
+    // Make sure the correct # of args are passed
+    if (argc != 3) {
+        puts("*** Invalid # of arguments ***");
+        return 1; // Returning because the # of arguments passed is invalid
+    }
+
+    printf("%s\n", argv[1]);
+    puts("BEFORE");
+    // Before we open the file... lets check for ~
+    if (argv[1][0] == '~') {
+        puts("IN IF STATEMENT");
+        if ((homedir = getenv("HOME")) == NULL) {
+            puts("*** $HOME env variable not allocated ***");
+            return 2; // Returning because there is no home directory assigned env variable
+        }
+        // Strip the ~ from the string
+        memmove(argv[1], argv[1] + 1, strlen(argv[1]) - 1);
+        // Copy the home directory path into the fullpath string
+        strcpy(fullpath, homedir);
+        // Now concatenate the path passed on to the full path
+        strcat(fullpath, argv[1]);
+        printf("%syeet\n", fullpath);
+        return 0; // TODO FOR TESTING
+    } else {
+        // No special case, just append directly into fullpath variable
+        strcpy(fullpath, argv[1]);
+        printf("%s\n", fullpath);
+    }
+    puts("AFTER");
+    // Open the first file as READ ONLY
+    int readfd = open(fullpath, O_RDONLY);
+    // Check if the file opened correctly
+    if (readfd == -1) {
+        puts("*** Read error ***");
+        return 3; // Returning because there was a read error
+    }
+    // Set the umask to 0 so that specific permissions can be set
+    umask(0);
+    // Open the second file as rw-rw-rw-
+    int writefd = open(argv[2], O_WRONLY | O_CREAT, 0666);
+    // Check if the file opened correctly
+    if (writefd == -1) {
+        puts("*** Write error ***");
+        close(readfd);
+        return 4; // Returning because there was a write error
+    }
+
+    // Create a check byte variable
+    int nbyte;
 
     return 0;
 }

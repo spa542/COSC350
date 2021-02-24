@@ -18,21 +18,30 @@
  * myAtoI Function:
  * Converts a single character to it's ASCII representation
  */
-char* myAtoItoA(char num, char* buffer) {
+int myAtoItoA(char num, char* buffer) {
     // Subtract the ASCII 0 from each digit and then multiply by each
     // decimal place to get out number back
     int asciiInt = 0;
     asciiInt = num - '\0';
+    // Check to make sure it can be converted in a valid way
+    if (asciiInt < 33 || asciiInt > 126) {
+        return -1;
+    }
+    int numDigits;
+    if (asciiInt > 100) {
+        numDigits = 3;
+    } else if (asciiInt > 10) {
+        numDigits = 2;
+    } else {
+        numDigits = 1;
+    }
 
-    printf("%d\n", asciiInt);
-    int i = 0;
+    int i = numDigits - 1;
     while (asciiInt != 0) {
-        buffer[i++] = asciiInt % 10 + '0';
+        buffer[i--] = asciiInt % 10 + '0';
         asciiInt /= 10;
     }
-    buffer[i] = '\0';
-    printf("%s\n", buffer);
-    return buffer;
+    return numDigits;
 }
 
 /*
@@ -82,12 +91,14 @@ int main(int argc, char** argv) {
     int nbyte;
     // Create a char buffer that can be filled when converting the int to ascii
     char fillBuff[3];
+    int numDigits;
     while((nbyte = read(readfd, buff, BUFFER_SIZE)) > 0) {
-        if (buff[0] == '\n') {
-            break; 
+        numDigits = myAtoItoA(buff[0], fillBuff);
+        if (numDigits == -1) {
+            write(writefd, buff, BUFFER_SIZE);
+            continue;
         }
-        myAtoItoA(buff[0], fillBuff);
-        if (write(writefd, fillBuff, 3) != nbyte) {
+        if (write(writefd, fillBuff, numDigits) != numDigits) {
             puts("*** Write error ***");
             close(readfd);
             close(writefd);

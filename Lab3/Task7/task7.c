@@ -89,8 +89,6 @@ int main(int argc, char** argv) {
         return 1; // Return because the number of arguments was incorrect
     }
 
-    // This is for the other way that the question was interpreted
-    //printSum1(argc, argv);
     // Print the sum of the digits of the argument
     printSum(argc, argv);
 

@@ -23,14 +23,10 @@ int myAtoItoA(char num, char* buffer) {
     // decimal place to get out number back
     int asciiInt = 0;
     asciiInt = num - '\0';
-    // Check to make sure it can be converted in a valid way
-    if (asciiInt < 33 || asciiInt > 126) {
-        return -1;
-    }
     int numDigits;
-    if (asciiInt > 100) {
+    if (asciiInt >= 100) {
         numDigits = 3;
-    } else if (asciiInt > 10) {
+    } else if (asciiInt >= 10) {
         numDigits = 2;
     } else {
         numDigits = 1;
@@ -92,17 +88,32 @@ int main(int argc, char** argv) {
     // Create a char buffer that can be filled when converting the int to ascii
     char fillBuff[3];
     int numDigits;
+    // Need a buffer to write a space after every ascii number written to the file
+    char spaceBuff[] = {' '};
+    // Start the loop
     while((nbyte = read(readfd, buff, BUFFER_SIZE)) > 0) {
-        numDigits = myAtoItoA(buff[0], fillBuff);
-        if (numDigits == -1) {
-            write(writefd, buff, BUFFER_SIZE);
+        if (buff[0] == '\n') {
+            if (write(writefd, buff, BUFFER_SIZE) != nbyte) {
+                puts("*** Write error ***");
+                close(readfd);
+                close(writefd);
+                return 5; // Returning because there was a write error in the loop
+            }
             continue;
         }
+        numDigits = myAtoItoA(buff[0], fillBuff);
         if (write(writefd, fillBuff, numDigits) != numDigits) {
             puts("*** Write error ***");
             close(readfd);
             close(writefd);
-            return 5; // Returning because there was a write error in the loop
+            return 6; // Returning because there was a write error in the loop
+        }
+        // Write a space after every ascii number is written
+        if (write(writefd, spaceBuff, 1) != 1) {
+            puts("*** Write error ***");
+            close(readfd);
+            close(writefd);
+            return 7; // Returning because there was a write error in the loop
         }
     }
     if (nbyte < 0) {

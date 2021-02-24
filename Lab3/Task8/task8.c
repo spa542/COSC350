@@ -11,22 +11,28 @@
 #include<unistd.h> // read(), write()
 #include<stdbool.h> // bool alias
 #include<sys/stat.h> // umask()
-#include<pwd.h> // getenv()
 
 #define BUFFER_SIZE 1
 
 /*
  * myAtoI Function:
- * Converts a single character to it's integer representation
+ * Converts a single character to it's ASCII representation
  */
-int myAtoI(char item) {
-    // Check to see if the char is a valid number
-    if (item < '0' || item > '9') {
-        return -1;
+char* myAtoItoA(char num, char* buffer) {
+    // Subtract the ASCII 0 from each digit and then multiply by each
+    // decimal place to get out number back
+    int asciiInt = 0;
+    asciiInt = num - '\0';
+
+    printf("%d\n", asciiInt);
+    int i = 0;
+    while (asciiInt != 0) {
+        buffer[i++] = asciiInt % 10 + '0';
+        asciiInt /= 10;
     }
-    // Subtract the ASCII 0 from the number and then return 
-    // it's integer value converted
-    return (int)(item - '0');   
+    buffer[i] = '\0';
+    printf("%s\n", buffer);
+    return buffer;
 }
 
 /*
@@ -35,7 +41,6 @@ int myAtoI(char item) {
  * file as rw for all modes. Finally, encode each character
  * to it's corresponding ASCII code number and output it to the
  * file. Consider argument number errors and open file errors.
- * Use custom atoi function from previous task.
  */
 int main(int argc, char** argv) {
 
@@ -52,29 +57,9 @@ int main(int argc, char** argv) {
         return 1; // Returning because the # of arguments passed is invalid
     }
 
-    printf("%s\n", argv[1]);
-    puts("BEFORE");
-    // Before we open the file... lets check for ~
-    if (argv[1][0] == '~') {
-        puts("IN IF STATEMENT");
-        if ((homedir = getenv("HOME")) == NULL) {
-            puts("*** $HOME env variable not allocated ***");
-            return 2; // Returning because there is no home directory assigned env variable
-        }
-        // Strip the ~ from the string
-        memmove(argv[1], argv[1] + 1, strlen(argv[1]) - 1);
-        // Copy the home directory path into the fullpath string
-        strcpy(fullpath, homedir);
-        // Now concatenate the path passed on to the full path
-        strcat(fullpath, argv[1]);
-        printf("%syeet\n", fullpath);
-        return 0; // TODO FOR TESTING
-    } else {
-        // No special case, just append directly into fullpath variable
-        strcpy(fullpath, argv[1]);
-        printf("%s\n", fullpath);
-    }
-    puts("AFTER");
+    // No special case, just append directly into fullpath variable
+    strcpy(fullpath, argv[1]);
+
     // Open the first file as READ ONLY
     int readfd = open(fullpath, O_RDONLY);
     // Check if the file opened correctly
@@ -95,6 +80,30 @@ int main(int argc, char** argv) {
 
     // Create a check byte variable
     int nbyte;
+    // Create a char buffer that can be filled when converting the int to ascii
+    char fillBuff[3];
+    while((nbyte = read(readfd, buff, BUFFER_SIZE)) > 0) {
+        if (buff[0] == '\n') {
+            break; 
+        }
+        myAtoItoA(buff[0], fillBuff);
+        if (write(writefd, fillBuff, 3) != nbyte) {
+            puts("*** Write error ***");
+            close(readfd);
+            close(writefd);
+            return 5; // Returning because there was a write error in the loop
+        }
+    }
+    if (nbyte < 0) {
+        puts("*** Read error ***");
+        close(readfd);
+        close(writefd);
+        return 6; // Returning because there was a read error in the loop
+    }
+
+    // Close the file descriptors
+    close(readfd);
+    close(writefd);
 
     return 0;
 }

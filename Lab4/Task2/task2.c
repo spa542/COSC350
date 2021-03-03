@@ -63,6 +63,8 @@ int main(int argc, char** argv) {
     char numBuff[BUFFER_SIZE];
     // Create the read-in buffer
     char readBuff[BUFFER_SIZE];
+    // Make sure there are no weird errors
+    memset(readBuff, 0, BUFFER_SIZE);
 
     // Open the file
     infd = open(argv[1], O_RDONLY);

@@ -6,7 +6,8 @@
  */
 #include<stdio.h> // Standard I/O
 #include<stdlib.h> // Standard library
-#include<unistd.h> // mkdir(), open(), symlink()
+#include<unistd.h> // open()
+#include<sys/stat.h> // mkdir(), symlink()
 
 /*
  * Create the directory structure from the pdf. Copy hello file under 
@@ -16,7 +17,34 @@
  * a file and make a directory by using symbolic link to toDir21
  */
 int main(void) {
-    
+
+    // Make the directory structure as stated in the lab
+    if (mkdir("./Dir1", S_IRWXU) == -1) {
+        puts("*** Error creating the first directory ***");
+        return 1; // Returning because the first directory couldnt be made
+    }
+    if (mkdir("./Dir2", S_IRWXU) == -1) {
+        puts("*** Error creating the second directory ***");
+        return 2; // Returning because the second directory couldnt be made
+    }
+    if (mkdir("./Dir2/Dir21", S_IRWXU) == -1) {
+        puts("*** Error creating the third directory ***");
+        return 3; // Returning because the third directory couldnt be made
+    }
+    // Move the hello executable file to the Dir21 directory
+    if (rename("./hello", "./Dir2/Dir21/hello") == -1) {
+        puts("*** Error copying the file over the Dir21 directory ***");
+        return 4; // Returning because the file did not get copied over correctly
+    }
+    // Make a symbolic link to Dir21 called toDir21
+    if (symlink("./Dir1/toDir21", "./Dir2/Dir21") == -1) {
+        puts("*** Error creating the first symlink ***");
+        return 5; // Returning because the first symlink could not be made
+    }
+    if (symlink("./Dir1/toHello", "./Dir2/Dir21/hello") == -1) {
+        puts("*** Error creating the second symlink ***");
+        return 6; // Returning because the second symlink could not be made
+    }
 
     return 0;
 }

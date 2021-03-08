@@ -9,6 +9,9 @@
 #include<unistd.h> // Macros
 #include<sys/stat.h> // mkdir(), symlink()
 
+// NOTE: You must compile the hello.c file and leave the executable where you found it in the cwd
+// before running this program!
+
 /*
  * Create the directory structure from the pdf. Copy hello file under 
  * ~/Dir2/Dir21/. Make a symbolic link named toDir21 to directory Dir21.

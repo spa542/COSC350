@@ -6,7 +6,7 @@
  */
 #include<stdio.h> // Standard I/O
 #include<stdlib.h> // Standard library
-#include<fcntl.h> // open()
+#include<fcntl.h> // open(), rename()
 #include<unistd.h> // read(), write(), link(), unlink()
 #include<sys/stat.h> // stat()
 #include<string.h> // String functions
@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
         strcat(finalString, realBuffer);
 
         // Test print
-        printf("%s\n", finalString);
+        //printf("%s\n", finalString);
 
         if (link(argv[1], finalString) == -1) {
             puts("*** Error linking file ***");

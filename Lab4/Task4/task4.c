@@ -6,7 +6,7 @@
  */
 #include<stdio.h> // Standard I/O
 #include<stdlib.h> // Standard library
-#include<unistd.h> // open()
+#include<unistd.h> // Macros
 #include<sys/stat.h> // mkdir(), symlink()
 
 /*
@@ -37,11 +37,12 @@ int main(void) {
         return 4; // Returning because the file did not get copied over correctly
     }
     // Make a symbolic link to Dir21 called toDir21
-    if (symlink("./Dir1/toDir21", "./Dir2/Dir21") == -1) {
+    // !!! symlink creates a link from the second parameter to the first parameter
+    if (symlink("./Dir2/Dir21", "./Dir1/toDir21") == -1) {
         puts("*** Error creating the first symlink ***");
         return 5; // Returning because the first symlink could not be made
     }
-    if (symlink("./Dir1/toHello", "./Dir2/Dir21/hello") == -1) {
+    if (symlink("./Dir2/Dir21/hello", "./Dir1/toHello") == -1) {
         puts("*** Error creating the second symlink ***");
         return 6; // Returning because the second symlink could not be made
     }

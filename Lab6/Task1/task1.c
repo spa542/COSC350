@@ -14,7 +14,22 @@
  * the environment variable and the function will return the value
  * of the environement variable
  */
-char *mygetenv(const char* name) {
+char *mygetenv(const char* name, char** envp) {
+    
+    int i = 0;
+    /*
+    while (envp[i]) {
+        // Compare each string path to each string environment variable 
+        if (strcmp(name, envp[i]) == 0) {
+            return envp[i];
+        }
+    }
+    */
+    // Test print
+    while (envp[i]) {
+        printf("%s\n", envp[i]);
+        i++;
+    }
 
     return NULL;
 }
@@ -24,7 +39,12 @@ char *mygetenv(const char* name) {
  * syntax and semantics.
  * Write a simple c program to show that mygetenv() works well.
  */
-int main(void) {
+int main(int argc, char** argv, char** envp) {
+
+    // Call mygetenv()
+    char* myEnv = mygetenv("$HOME", envp);
+
+    printf("Your $HOME path variable is: %s\n", myEnv);
 
 
     return 0;

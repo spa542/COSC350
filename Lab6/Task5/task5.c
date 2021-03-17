@@ -74,13 +74,15 @@ int main(int argc, char** argv) {
     umask(0);
     // Start reading from the file 
     if (pid == 0) { // For the child
+        // Need to use pread in order to keep buffers synchronized!!!!!!!
+        int counter = 0; 
         // For error checking
         int nbyte;
         if ((childOutfd = open("child.txt", O_CREAT | O_WRONLY, 0666)) == -1) {
             puts("*** Error creating child.txt for write ***");
             _exit(3); // Returning because there was an error opening the file for writing
         }
-        while ((nbyte = read(infd, childBuffer, BUFFER_SIZE)) > 0) {
+        while ((nbyte = pread(infd, childBuffer, BUFFER_SIZE, counter++)) > 0) {
             if (isNum(childBuffer[0])) {
                 // Write the number to the output file
                 if (write(childOutfd, childBuffer, BUFFER_SIZE) == -1) {
@@ -106,13 +108,15 @@ int main(int argc, char** argv) {
             _exit(7); // Returning because there was an error reading the file for the child
         }
     } else { // For the parent
+        // Need to use pread in order to keep buffers synchronized!!!!!!!
+        int counter = 0; 
         // For error checking
         int nbyte;
         if ((parentOutfd = open("parent.txt", O_CREAT | O_WRONLY, 0666)) == -1) {
             puts("*** Error creating parent.txt for write ***");
             return 3; // Returning because there was an error opening the file for writing
         }
-        while ((nbyte = read(infd, parentBuffer, BUFFER_SIZE)) > 0) {
+        while ((nbyte = pread(infd, parentBuffer, BUFFER_SIZE, counter++)) > 0) {
             if (isNum(parentBuffer[0])) {
                 // Write a space to the output file
                 if (write(parentOutfd, spaceBuffer, BUFFER_SIZE) == -1) {

@@ -78,12 +78,14 @@ char *mygetenv(const char* name, char** envp) {
  */
 int main(int argc, char** argv, char** envp) {
 
+    /*
     // Print all of the environment variables for testing
     int i = 0;
     while(envp[i]) {
         printf("%s\n", envp[i]);
         i++;
     }
+    */
 
     // Call mygetenv()
     char* myEnv1 = mygetenv("$HOME", envp);

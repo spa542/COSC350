@@ -85,27 +85,21 @@ int main(int argc, char** argv) {
         while ((nbyte = pread(infd, childBuffer, BUFFER_SIZE, counter++)) > 0) {
             if (isNum(childBuffer[0])) {
                 // Write the number to the output file
-                if (write(childOutfd, childBuffer, BUFFER_SIZE) == -1) {
+                if (write(childOutfd, spaceBuffer, BUFFER_SIZE) == -1) {
                     puts("*** Error writing to child.txt ***");
                     _exit(4); // Returning because there was an error writing to the output file
                 }
-            } else if (childBuffer[0] == '\n') {
-                // Write a new line to the output file
-                if (write(childOutfd, newLineBuffer, BUFFER_SIZE) == -1) {
-                    puts("*** Error writing to child.txt ***");
-                    _exit(5); // Returning because there was an error writing to the output file
-                }
             } else {
                 // Write a space to the output file
-                if (write(childOutfd, spaceBuffer, BUFFER_SIZE) == -1) {
+                if (write(childOutfd, childBuffer, BUFFER_SIZE) == -1) {
                     puts("*** Error writing to child.txt ***");
-                    _exit(6); // Returning because there was an error writing to the output file
+                    _exit(5); // Returning because there was an error writing to the output file
                 }
             }
         }
         if (nbyte == -1) {
             puts("*** Error reading from the input file for child ***");
-            _exit(7); // Returning because there was an error reading the file for the child
+            _exit(6); // Returning because there was an error reading the file for the child
         }
     } else { // For the parent
         // Need to use pread in order to keep buffers synchronized!!!!!!!
@@ -119,21 +113,27 @@ int main(int argc, char** argv) {
         while ((nbyte = pread(infd, parentBuffer, BUFFER_SIZE, counter++)) > 0) {
             if (isNum(parentBuffer[0])) {
                 // Write a space to the output file
-                if (write(parentOutfd, spaceBuffer, BUFFER_SIZE) == -1) {
+                if (write(parentOutfd, parentBuffer, BUFFER_SIZE) == -1) {
                     puts("*** Error writing to parent.txt ***");
                     return 4; // Returning because there was an error writing to the output file
                 }
-            } else {
-                // Write the non-numeric symbol to the output file
-                if (write(parentOutfd, parentBuffer, BUFFER_SIZE) == -1) {
+            } else if (parentBuffer[0] == '\n') {
+                // Write a new line to the output file
+                if (write(parentOutfd, newLineBuffer, BUFFER_SIZE) == -1) {
                     puts("*** Error writing to parent.txt ***");
                     return 5; // Returning because there was an error writing to the output file
+                }
+            } else {
+                // Write the non-numeric symbol to the output file
+                if (write(parentOutfd, spaceBuffer, BUFFER_SIZE) == -1) {
+                    puts("*** Error writing to parent.txt ***");
+                    return 6; // Returning because there was an error writing to the output file
                 }
             }
         }
         if (nbyte == -1) {
             puts("*** Error reading from input file for child ***");
-            return 6; // Returning because there was an error reading the file for the parent
+            return 7; // Returning because there was an error reading the file for the parent
         }
     }
 

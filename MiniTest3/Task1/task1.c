@@ -3,6 +3,7 @@
 #include<unistd.h>
 #include<stdbool.h>
 #include<sys/wait.h>
+#include<sys/types.h>
 
 int main(void) {
 

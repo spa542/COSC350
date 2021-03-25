@@ -32,7 +32,7 @@ int main(void) {
     // Add the first blocked signals to the set
     sigaddset(&set1, SIGQUIT);
     sigaddset(&set1, SIGINT);
-    // Now set the mask (not saving the new mask)
+    // Now set the mask
     sigprocmask(SIG_BLOCK, &set1, NULL);
     // First loop
     // This loop will block SIGINT and SIGQUIT
@@ -40,9 +40,24 @@ int main(void) {
         printf("%d\n", i + 1);
         sleep(1);
     }
-    // Initialize the second set and at SIGQUIT to it
+    // Initialize and add the removed signal to sigset
     sigemptyset(&set2);
     sigaddset(&set2, SIGQUIT);
+    // Need to check if the there are pending SIGQUIT's in the queue, 
+    // if so, then need to clear them
+    sigset_t pending;
+    sigpending(&pending);
+    // If SIGQUIT is a member of the pending statuses then clear it so
+    // not weird issue occurs
+    if (sigismember(&pending, SIGQUIT)) {
+        // Need to create a set for clearing the pending signals
+        sigset_t clear_set;
+        sigemptyset(&clear_set);
+        sigaddset(&clear_set, SIGQUIT);
+        int sig_num;
+        // Need to clear the SIGQUIT pending signals that were blocked earlier
+        sigwait(&clear_set, &sig_num);
+    }
     // Now unblock the signal SIGQUIT (not saving the new mask)
     sigprocmask(SIG_UNBLOCK, &set2, NULL);
     // Second loop

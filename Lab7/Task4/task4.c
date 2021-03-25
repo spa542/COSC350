@@ -6,6 +6,24 @@
  */
 #include<stdio.h> // Standard I/O
 #include<stdlib.h> // Standard Library
+#include<unistd.h> // fork()
+#include<sys/types.h> // pid_d
+#include<signal.h> // kill(), signal(), pause()
+
+/*
+ * handle1 Function:
+ * This function handles the signals SIGUSR1 and SIGUSR2
+ */
+void handler(int sig) {
+    if (sig == SIGUSR1) {
+        puts("Hi Honey!");
+        return;
+    }
+    if (sig == SIGUSR2) {
+        puts("Do you make trouble again?");
+        return;
+    }
+}
 
 /*
  * Write a complete C program in which two children processes send a signal
@@ -16,5 +34,27 @@
  */
 int main(void) {
 
+    // Create the id variables for each child
+    pid_t myID1, myID2;
+
+    myID1 = fork();
+    if (myID1 == 0) {
+        // Send a message to the parent
+        kill(getppid(), SIGUSR1);
+        _exit(0);
+    }
+    myID2 = fork();
+    if (myID2 == 0) {
+        kill(getppid(), SIGUSR2);
+        _exit(0);
+    }
+
+    // Create a handler for the signals
+    signal(SIGUSR1, handler);
+    signal(SIGUSR2, handler);
+    // Pause and wait for the signals
+    pause();
+
+    // All done!
     return 0;
 }

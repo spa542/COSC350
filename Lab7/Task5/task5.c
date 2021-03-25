@@ -6,6 +6,8 @@
  */
 #include<stdio.h> // Standard I/O
 #include<stdlib.h> // Standard Library
+#include<unistd.h> // sleep()
+#include<signal.h> // sigprocmask()
 
 /*
  * Write a C program that demonstrates how you can block and unblock signals.
@@ -19,6 +21,37 @@
  * by default causes the program to terminate and creates a core file.
  */
 int main(void) {
+    
+    // Create the counter
+    int i;
+    // Create the sigset
+    sigset_t set1;
+    sigset_t set2;
+    // Initialize the sigset
+    sigemptyset(&set1);
+    // Add the first blocked signals to the set
+    sigaddset(&set1, SIGQUIT);
+    sigaddset(&set1, SIGINT);
+    // Now set the mask (not saving the new mask)
+    sigprocmask(SIG_BLOCK, &set1, NULL);
+    // First loop
+    // This loop will block SIGINT and SIGQUIT
+    for (i = 0; i < 5; i++) {
+        printf("%d\n", i + 1);
+        sleep(1);
+    }
+    // Initialize the second set and at SIGQUIT to it
+    sigemptyset(&set2);
+    sigaddset(&set2, SIGQUIT);
+    // Now unblock the signal SIGQUIT (not saving the new mask)
+    sigprocmask(SIG_UNBLOCK, &set2, NULL);
+    // Second loop
+    // This loop will block SIGINT
+    for (i = 0; i < 5; i++) {
+        printf("%d\n", i + 1);
+        sleep(1);
+    }
 
+    // All done!
     return 0;
 }

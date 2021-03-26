@@ -16,6 +16,7 @@
 void ouch(int sig)
 {
     printf("OUCH! - I got signal %d\n", sig);
+    signal(SIGKILL, SIG_DFL);
 }
 
 /*
@@ -25,7 +26,7 @@ int main(void) {
     struct sigaction act;
     act.sa_handler = ouch;
     sigemptyset(&act.sa_mask);
-    act.sa_flags = 0;
+    act.sa_flags = SA_RESETHAND;
     sigaction(SIGINT, &act, 0);
     while(1) {
         printf("Hello World!\n");

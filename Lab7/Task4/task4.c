@@ -28,11 +28,15 @@ void handler(int sig) {
 /*
  * Write a complete C program in which two children processes send a signal
  * to the parent. The first child sends the message SIGUSR1 to the parent and 
- * the parent process respondes by writing the message "Hi Honey! Anything wrong?".
+ * the parent process responds by writing the message "Hi Honey! Anything wrong?".
  * The second child sends a message SIGUSR2 to the parent and the parent responds
  * by writing the message "Do you make trouble again?".
  */
 int main(void) {
+
+    // Create a handler for the signals
+    signal(SIGUSR1, handler);
+    signal(SIGUSR2, handler);
 
     // Create the id variables for each child
     pid_t myID1, myID2;
@@ -49,9 +53,6 @@ int main(void) {
         _exit(0);
     }
 
-    // Create a handler for the signals
-    signal(SIGUSR1, handler);
-    signal(SIGUSR2, handler);
     // Pause and wait for the signals
     pause();
 

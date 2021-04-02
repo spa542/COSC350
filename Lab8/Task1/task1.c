@@ -24,6 +24,7 @@ void* sum(void* arg) {
     }
     
     printf("Sum: %d\n", sum);
+    pthread_exit(NULL);
     return NULL;
 }
 
@@ -41,6 +42,7 @@ void* factorial(void* arg) {
     }
 
     printf("Factorial: %d\n", fact);
+    pthread_exit(NULL);
     return NULL;
 }
 

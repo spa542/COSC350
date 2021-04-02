@@ -35,13 +35,45 @@ int main(void) {
     int check;
     // Create buffer for input
     pthread_t th1, th2, th3, th4;
+    // Thread returns;
+    void *ret1, *ret2;
 
     // Create the first thread
     if ((check = pthread_create(&th1, NULL, getTestScores, NULL)) != 0) {
         puts("*** Error creating the first thread ***");
         return 1; // Returning because the first thread couldn't be created
     }
+    // Waiting for the first thread to finish
+    if ((check = pthread_join(th1, &ret1)) != 0) {
+        puts("*** Error joining on the first thread ***");
+        return 2; // Returning because the program could not join on the first thread
+    }
+    // Create the second thread
+    if ((check = pthread_create(&th2, NULL, calcAvgMed, NULL)) != 0) {
+        puts("*** Error creating the second thread ***"); 
+        return 3; // Returning because the second thread couldn't be created
+    }
+    // Create the third thread
+    if ((check = pthread_create(&th3, NULL, calcMinMax, NULL)) != 0) {
+        puts("*** Error creating the third thread ***");
+        return 4; // Returning because the third thread couldn't be created
+    }
+    // Join on the second and third thread
+    if ((check = pthread_join(th2, &ret1)) != 0) {
+        puts("*** Error joining on the second thread ***");
+        return 5; // Returning because the program could not join on the second thread
+    }
+    if ((check = pthread_join(th3, &ret2)) != 0) {
+        puts("*** Error joining on the third thread ***");
+        return 6; // Returning because the program could not join on the third thread
+    }
+    // Now that all the threads are finished, let the fourth thread clean everything up
+    if ((check = pthread_create(&th4, NULL, cleanUp, NULL)) != 0) {
+        puts("*** Error creating the fourth thread ***");
+        return 7; // Returning because the fourth thread couldn't be created
+    }
 
+    // All done! Exit...
     pthread_exit(NULL);
     return 0;
 }
@@ -56,37 +88,53 @@ void* getTestScores(void* arg) {
     char buff[80];
     // Error check
     int nbyte;
+    // Temp integer value
+    int temp;
+    // Reduced size
+    int reducedArrSize = -1;
 
-    printf("Enter test scores: (Max: 20)\n");
-    if ((nbyte = read(0, buff, 80)) == -1 ) {
-        puts("*** Error reading from standard input ***");
-    }
-
-    // Create the delimeter and the pointer that will move through the array
-    char* move;
-    char delim = ' ';
-    // Tokenize the string 
-    move = strtok(buff, &delim);
-
-    // Number of integers in the array
-    int numOfIntegers = 0;
-    // Get the values
-    int i, temp;
-    values[0] = atoi(buff);
-    for (i = 1; i < ARRAY_SIZE && move != NULL; i++) {
-        if ((temp = atoi(move)) != 0) {
-            values[i] = temp;
-        }
-        // Move the token 
-        move = strtok(NULL, &delim);
-    }
-
+    // Ask for the integers from the user
+    int i;
+    puts("Enter up to 20 scores:");
     for (i = 0; i < ARRAY_SIZE; i++) {
-        printf("%d\n", values[i]); 
+        printf("Enter score %d (-1 to quit):\n", i + 1);
+        if ((nbyte = read(0, buff, 80)) == -1 ) {
+            puts("*** Error reading in integers ***");
+            pthread_exit(NULL);
+            return NULL;
+        }
+        // Scan the value from the string
+        if ((nbyte = sscanf(buff, "%d", &temp)) != 1) {
+            puts("*** Error on parsing input ***");
+            puts("Try inputting a number again...");
+            i--;
+            continue;
+        }
+        // Check if the user wants to exit
+        if (temp == -1) {
+            reducedArrSize = i;
+            values[i] = 100000;
+            break; 
+        }
+        if (temp < 0) {
+            puts("*** Input can't be negative (outside of -1) ***");
+            i--;
+            continue;
+        }
+        // Assign the value to the array
+        values[i] = temp;
     }
-    
+    if (reducedArrSize == -1) {
+        reducedArrSize = ARRAY_SIZE; 
+    }
 
-    pthread_exit(NULL);
+    puts("Array values:");
+    for (i = 0; i < reducedArrSize; i++) {
+        printf("%d ", values[i]);
+    }
+    puts("");
+
+    pthread_exit((void*)0);
     return NULL;
 }
 
@@ -97,6 +145,33 @@ void* getTestScores(void* arg) {
  */
 void* calcAvgMed(void* arg) {
 
+    // Find the average in the array
+    int i, sum = 0, shortenedSize = -1;
+    for (i = 0; i < ARRAY_SIZE; i++) {
+        // Value to indicate the array is shortened
+        if (values[i] == 100000) {
+            shortenedSize = i; 
+            break;
+        }
+        sum += values[i];
+    }
+    // Print the average and median
+    if (shortenedSize == ARRAY_SIZE) {
+        printf("Average: %f\n", (float)(sum / ARRAY_SIZE));
+        // Find the median
+        printf("Median = %f\n", ((float)(values[9] + values[10]) / 2));
+    } else {
+        // Find the median
+        printf("Average: %f\n", ((float)sum / shortenedSize));
+        if (shortenedSize % 2 == 0) {
+            int temp = (shortenedSize - 1) / 2;
+            printf("Median = %f\n", ((float)(values[temp] + values[temp + 1]) / 2));
+        } else {
+            printf("Median = %d\n", values[shortenedSize / 2]);
+        }
+    }
+
+    pthread_exit((void*)0);
     return NULL;
 }
 

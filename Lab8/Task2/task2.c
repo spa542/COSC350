@@ -8,12 +8,14 @@
 #include<stdlib.h> // Standard Library
 #include<pthread.h> // Thread library
 #include<unistd.h> // read()
-#include<string.h> // strtok()
+#include<string.h> // memset()
 
 #define ARRAY_SIZE 20
 
 // Global integer array
 int values[ARRAY_SIZE];
+// Create the mutex
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Functions for each thread
 void* getTestScores(void*); // Thread 1 will do this
@@ -72,6 +74,10 @@ int main(void) {
         puts("*** Error creating the fourth thread ***");
         return 7; // Returning because the fourth thread couldn't be created
     }
+    if ((check = pthread_join(th4, &ret1)) != 0) {
+        puts("*** Error joining on the fourth thread ***");
+        return 8; // Returning because the program could not join on the fourth thread
+    }
 
     // All done! Exit...
     pthread_exit(NULL);
@@ -85,8 +91,7 @@ int main(void) {
  */
 void* getTestScores(void* arg) {
     // Create the buffer
-    char buff[80];
-    // Error check
+    char buff[80]; // Error check
     int nbyte;
     // Temp integer value
     int temp;
@@ -155,6 +160,11 @@ void* calcAvgMed(void* arg) {
         }
         sum += values[i];
     }
+    // Make sure shortened size has something
+    if (shortenedSize == -1) {
+        shortenedSize = ARRAY_SIZE;
+    }
+
     // Print the average and median
     if (shortenedSize == ARRAY_SIZE) {
         printf("Average: %f\n", (float)(sum / ARRAY_SIZE));
@@ -182,6 +192,24 @@ void* calcAvgMed(void* arg) {
  */
 void* calcMinMax(void* arg) {
 
+    // Create the variables to hold the min and max
+    int max = 0, min = 100000;
+    // Find it
+    int i;
+    for (i = 0; i < ARRAY_SIZE && values[i] != 100000; i++) {
+        if (values[i] > max) {
+            max = values[i];
+        }
+        if (values[i] < min) {
+            min = values[i];
+        }
+    }
+
+    // Print out the values
+    printf("Max = %d\n", max);
+    printf("Min = %d\n", min);
+
+    pthread_exit((void*)0);
     return NULL;
 }
 
@@ -191,6 +219,18 @@ void* calcMinMax(void* arg) {
  * and print out the result
  */
 void* cleanUp(void* arg) {
+
+    // Clean up the array and print it
+    memset(values, 0, ARRAY_SIZE);
+
+    // Print it out
+    int i;
+    puts("Cleaned array:");
+    for (i = 0; i < ARRAY_SIZE; i++) {
+        printf("%d ", values[i]);
+    }
+    puts("");
     
+    pthread_exit((void*)0);
     return NULL;
 }

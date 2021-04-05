@@ -14,8 +14,6 @@
 
 // Global integer array
 int values[ARRAY_SIZE];
-// Create the mutex
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Functions for each thread
 void* getTestScores(void*); // Thread 1 will do this
@@ -221,10 +219,13 @@ void* calcMinMax(void* arg) {
 void* cleanUp(void* arg) {
 
     // Clean up the array and print it
-    memset(values, 0, ARRAY_SIZE);
+    int i;
+    for (i = 0; i < ARRAY_SIZE; i++) {
+        values[i] = 0;
+    }
+    
 
     // Print it out
-    int i;
     puts("Cleaned array:");
     for (i = 0; i < ARRAY_SIZE; i++) {
         printf("%d ", values[i]);

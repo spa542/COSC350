@@ -55,7 +55,7 @@ int main(void) {
                 printf("Sum: %d + %d = %d\n", one, two, one + two);
             } else { // Fail
                 puts("*** Error wrong inputs ***");
-                _exit(5); // Returning because the sscanf did not read two integers properly
+                //_exit(5); // Returning because the sscanf did not read two integers properly
             }
         }
 

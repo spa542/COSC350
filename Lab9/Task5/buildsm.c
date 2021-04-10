@@ -6,6 +6,8 @@
  */
 #include<stdio.h> // Standard I/O
 #include<stdlib.h> // Standard I/O
+#include<sys/shm.h> // shmget()
+#include<sys/ipc.h> // ftok()
 
 /*
  * Build a shared memory which will be used for inter-process communication

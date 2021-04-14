@@ -47,9 +47,17 @@ int main(void) {
     }
 
     // Get the data from the shared memory pool
+    /*
     while (true) {
-
+        if (attachArray != NULL) {
+            add1 = attachArray[0];
+            add2 = attachArray[1];
+            printf("%d + %d = %d\n", add1, add2, add1+add2);
+        } else {
+            sleep(1);
+        }
     }
+    */
 
 
     return 0;

@@ -53,6 +53,9 @@ int main(void) {
         return 3; // Returning because there was an error attaching the pointer to the shared memory pool
     }
 
+    // Initialize the shared memory for the reader process
+    attachArray[0] = attachArray[1] = 0;
+
     // Get the data from standard input
     while ((nbyte = read(STDIN_FILENO, buffer, BUFFER_SIZE)) > 0) {
         if (sscanf(buffer, "%d%d", &tmp1, &tmp2) == 2) { // Success

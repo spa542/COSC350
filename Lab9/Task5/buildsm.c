@@ -27,7 +27,7 @@ int main(void) {
 
     int shmid;
     // Create the shared memory pool
-    if ((shmid = shmget(key, 2*sizeof(int), IPC_CREAT | 0666)) == -1) {
+    if ((shmid = shmget(key, 3*sizeof(int), IPC_CREAT | 0666)) == -1) {
         puts("*** Error creating the shared memory pool ***");
         return 2; // Returning because there was an error creating the shared memory pool
     }

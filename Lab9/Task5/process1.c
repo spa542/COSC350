@@ -42,7 +42,7 @@ int main(void) {
     }
 
     // Get the shared memory pool
-    if ((shmid = shmget(key, 2*sizeof(int), 0)) == -1) {
+    if ((shmid = shmget(key, 3*sizeof(int), 0)) == -1) {
         puts("*** Error getting the shared memory pool ***");
         return 2; // Returning because there was an error getting the shared memory pool
     }
@@ -54,18 +54,19 @@ int main(void) {
     }
 
     // Initialize the shared memory for the reader process
-    attachArray[0] = attachArray[1] = 0;
+    attachArray[0] = attachArray[1] = attachArray[2] = 0;
 
     // Get the data from standard input
     while ((nbyte = read(STDIN_FILENO, buffer, BUFFER_SIZE)) > 0) {
+        // process1 will wait until client reads data and writes -1 to the shared memory
+        while (attachArray[2] != 0) { // While the information hasn't been read yet
+            sleep(1);
+        }
         if (sscanf(buffer, "%d%d", &tmp1, &tmp2) == 2) { // Success
             // Now write the data to shared memory 
             attachArray[0] = tmp1;
             attachArray[1] = tmp2;
-            // process1 will wait until client reads data and writes -1 to the shared memory
-            while (*attachArray != -1) {
-                sleep(1);
-            }
+            attachArray[2] = 1; // Information is written to the buffer from the write process
         } else { // Fail
             puts("*** Invalid Integers ***");
             continue;

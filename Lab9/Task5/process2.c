@@ -35,7 +35,7 @@ int main(void) {
     }
 
     // Get the shared memory pool
-    if((shmid = shmget(key, 2*sizeof(int), 0)) == -1) {
+    if((shmid = shmget(key, 3*sizeof(int), 0)) == -1) {
         puts("*** Error getting the memory pool ***");
         return 2; // Returning because there was an error getting the memory pool
     }
@@ -46,20 +46,17 @@ int main(void) {
         return 3; // Returning because there was an error attaching the array to the shared memory pool
     }
 
-
-    // TODO: Create a array of size 3, and make the third integer the flag to determine if 
-    // the writer has written new data or not. Need to implement in all programs for this task.
-
     // Get the data from the shared memory pool
     while (true) {
-        if ((attachArray[0] == 0 || attachArray[0] == -1) && attachArray[1] == 0) {
-            sleep(1);
-        } else {
+        if (attachArray[2] == 1) {
             add1 = attachArray[0];
             add2 = attachArray[1];
             printf("%d + %d = %d\n", add1, add2, add1+add2);
-            attachArray[0] = -1;
+            attachArray[0] = 0;
             attachArray[1] = 0;
+            attachArray[2] = 0; // Information was read and the buffer can be written to again
+        } else {
+            sleep(1);
         }
     }
 

@@ -24,7 +24,7 @@ int main(void) {
 
     int shmid;
     // Get the shared memory
-    if ((shmid = shmget(key, 2*sizeof(int), 0)) == -1) {
+    if ((shmid = shmget(key, 3*sizeof(int), 0)) == -1) {
         puts("*** Error getting the shared memory segment ***");
         return 2; // Returning because there was an error getting the shared memory segment
     }

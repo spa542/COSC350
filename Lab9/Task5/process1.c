@@ -58,7 +58,7 @@ int main(void) {
 
     // Get the data from standard input
     while ((nbyte = read(STDIN_FILENO, buffer, BUFFER_SIZE)) > 0) {
-        // process1 will wait until client reads data and writes -1 to the shared memory
+        // process1 will wait until client reads data and writes 0 to the shared memory
         while (attachArray[2] != 0) { // While the information hasn't been read yet
             sleep(1);
         }

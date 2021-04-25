@@ -8,6 +8,29 @@
 #include<stdlib.h> // Standard Library
 #include<sys/sem.h> // Semaphore Stuff
 #include<sys/types.h> // Types
+#include<stdbool.h> // bool alias
+#include<time.h> // time()
+
+#define N 10
+
+// Create the Semaphore type
+typedef int semaphore;
+
+// Create the semaphores
+semaphore mutex = 1;
+semaphore empty = N;
+semaphore full = 0;
+
+// Producer Function
+void* producer(void* arg) {
+    int item;
+
+    while (true) {
+        item = 1 + rand() % 10; // produce_item()
+         
+
+    }
+}
 
 /*
  * You need to create two threads: producer and consumer.
@@ -18,6 +41,8 @@
  * for semaphores
  */
 int main(void) {
+    // Seed the random generator
+    srand(time(NULL));
 
     return 0;
 }

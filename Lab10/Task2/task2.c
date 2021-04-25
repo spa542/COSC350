@@ -16,9 +16,9 @@
 // Handler for producer and consumer
 void handler(int sig) {
     if (sig == SIGUSR1) {
-
+        puts("Handled SIGUSR1");
     } else if (sig == SIGUSR2) {
-
+        puts("Handled SIGUSR2");
     } else {
         // Do nothing
     }
@@ -29,23 +29,34 @@ void handler(int sig) {
 
 // Global count
 int count = 0;
+// Global buffer
+int buffer[N];
+
+void printBuffer() {
+    int i;
+    for (i = 0; i < N; i++) {
+        printf("%d ", buffer[i]);
+    }
+    puts("");
+}
 
 // Producer algorithm
 void* producer(void* arg) {
-    int* buffer = (int*)arg;
     int item;
     while (true) {
         item = rand() % 10 + 1;
         if (count == N) {
+            puts("Telling the consumer to wake up!");
             // Sleep until woken up by the consumer
             signal(SIGUSR1, handler);
             pause();
         }
-        buffer[0] = item;
+        buffer[count] = item;
         count += 1;
         if (count == 1) {
+            printBuffer();
             // Wake up the consumer
-            raise(SIGUSR2);
+            kill(getpid(), SIGUSR2);
         }
     }
     pthread_exit(0);
@@ -54,7 +65,6 @@ void* producer(void* arg) {
 
 // Consumer algorithm
 void* consumer(void* arg) {
-    int* buffer = (int*)arg;
     int item;
     while (true) {
         if (count == 0) {
@@ -62,10 +72,13 @@ void* consumer(void* arg) {
             pause();
         }
         int temp = buffer[0];
-        buffer[0] = -10000;
+        buffer[0] = 0;
         count -= 1;
         if (count == N - 1) {
-            raise(SIGUSR1);
+            puts("Telling the producer to wake up!");
+            printBuffer();
+            // Wake up the producer
+            kill(getpid(), SIGUSR1);
         }
         // temp will just be gotten rid of
     }
@@ -85,18 +98,16 @@ int main(void) {
     srand(time(NULL));
     // Threads
     pthread_t p, c;
-    // Check
+    // Check int check;
     int check;
-    // Buffer
-    int buffer[10];
 
     // Create the producer thread
-    if ((check = pthread_create(&p, NULL, producer, (void*)buffer)) == -1) {
+    if ((check = pthread_create(&p, NULL, producer, NULL)) == -1) {
         puts("*** Error creating the producer thread ***");
         return 1; // Returning because there was an error creating the first thread
     }
     // Create the consumer thread
-    if ((check = pthread_create(&c, NULL, consumer, (void*)buffer)) == -1) {
+    if ((check = pthread_create(&c, NULL, consumer, NULL)) == -1) {
         puts("*** Error creating the consumer thread ***");
         return 2; // Returning because there was an error creating the second thread
     }

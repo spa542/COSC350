@@ -27,6 +27,7 @@ void* producer(void* arg) {
 
     while (true) {
         item = 1 + rand() % 10; // produce_item()
+
          
 
     }
@@ -38,7 +39,7 @@ void* producer(void* arg) {
  * and one binary semaphore mutex for mutual exclusion in the algorithm.
  * You need to find out a way to demonstrate your program works properly.
  * You need to use ftok(), semget(), semctl(), and semop() system calls
- * for semaphores
+ * for semaphores.
  */
 int main(void) {
     // Seed the random generator

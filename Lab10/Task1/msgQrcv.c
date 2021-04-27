@@ -10,6 +10,7 @@
 #include<sys/types.h> // Types
 #include<sys/ipc.h> // IPC Stuff
 #include<stdbool.h> // bool alias
+#include<errno.h>  // Error messages
 
 #define BUFFER_SIZE 2
 
